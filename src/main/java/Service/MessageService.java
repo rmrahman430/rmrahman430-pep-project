@@ -22,7 +22,16 @@ public class MessageService {
         return messageDAO.getAllMessages();
 
     }
+
     public Message getMessageById(int message_id) {
         return messageDAO.getMessageById(message_id);
+    }
+
+    public Message deleteMessageById(int message_id) {
+        return messageDAO.deleteMessageById(message_id);
+    }
+    
+    public List<Message> getMessagesByAccountId(int account_id) {
+        return messageDAO.getAllMessagesOfUser(account_id);
     }
 }
