@@ -31,7 +31,7 @@ public class SocialMediaController {
     public Javalin startAPI() {
         Javalin app = Javalin.create();
         app.get("/messages", this::getAllMessagesHandler);
-
+        app.get("/messages/{message_id}", this::getMessageByIdHandler);
         return app;
     }
 
@@ -41,6 +41,17 @@ public class SocialMediaController {
      */
     private void getAllMessagesHandler(Context ctx) {
         ctx.json(messageService.getAllMessages());
+    }
+
+    private void getMessageByIdHandler(Context context) throws JsonProcessingException {
+        
+        int messageId = Integer.parseInt(context.pathParam("message_id"));
+        Message message = messageService.getMessageById(messageId);
+        if (message != null) {
+            context.json(message);
+        } else {
+            context.json(""); // Respond with an empty body if no message is found
+        }
     }
 
 
