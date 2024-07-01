@@ -32,6 +32,8 @@ public class SocialMediaController {
         Javalin app = Javalin.create();
         app.get("/messages", this::getAllMessagesHandler);
         app.get("/messages/{message_id}", this::getMessageByIdHandler);
+        app.delete("/messages/{message_id}", this::deleteMessageByIdHandler);
+        app.get("/accounts/{account_id}/messages", this::getMessagesByAccountIdHandler);
         return app;
     }
 
@@ -54,5 +56,20 @@ public class SocialMediaController {
         }
     }
 
+    private void deleteMessageByIdHandler(Context context) throws JsonProcessingException {
+
+        int messageId = Integer.parseInt(context.pathParam("message_id"));
+        Message deletedMessage = messageService.deleteMessageById(messageId);
+        if (deletedMessage != null) {
+            context.json(deletedMessage); // Return the deleted message
+        } else {
+            context.result(""); // Respond with an empty body if no message was found
+        }
+    }
+
+    private void getMessagesByAccountIdHandler(Context context) {
+        int accountId = Integer.parseInt(context.pathParam("account_id"));
+        context.json(messageService.getMessagesByAccountId(accountId));
+    }
 
 }
