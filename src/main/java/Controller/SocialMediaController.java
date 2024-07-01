@@ -8,9 +8,6 @@ import Model.Message;
 import Service.SocialService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
-
-import java.util.List;
 
 /**
  * TODO: You will need to write your own endpoints and handlers for your controller. The endpoints you will need can be
@@ -35,13 +32,35 @@ public class SocialMediaController {
         app.delete("/messages/{message_id}", this::deleteMessageByIdHandler);
         app.get("/accounts/{account_id}/messages", this::getMessagesByAccountIdHandler);
         app.post("/messages", this::createMessageHandler);
+        app.patch("/messages/{message_id}", this::updateMessageHandler);
+        app.post("/register", this::createAccountHandler);
+        app.post("/login", this::loginHandler);
         return app;
     }
 
-    /**
-     * This is an example handler for an example endpoint.
-     * @param context The Javalin Context object manages information about both the HTTP request and response.
-     */
+    private void createAccountHandler(Context context) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+
+        Account account = mapper.readValue(context.body(), Account.class);
+        Account createdAccount = socialService.createAccount(account);
+
+        if (createdAccount != null) {
+            context.json(createdAccount);
+        } else {
+            context.status(400);
+        }
+    }
+    private void loginHandler(Context context) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        Account account = mapper.readValue(context.body(), Account.class);
+        Account Login = socialService.Login(account.getUsername(), account.getPassword());
+
+        if (Login != null) {
+            context.json(Login);
+        } else {
+            context.status(401).result("");
+        }
+    }
     private void getAllMessagesHandler(Context ctx) {
         ctx.json(socialService.getAllMessages());
     }
@@ -80,6 +99,20 @@ public class SocialMediaController {
         Message createdMessage = socialService.createMessage(message);
         if (createdMessage != null) {
             context.json(createdMessage);
+        } else {
+            context.status(400);
+        }
+    }
+
+    private void updateMessageHandler(Context context) throws JsonProcessingException {
+        int accountId = Integer.parseInt(context.pathParam("message_id"));
+        ObjectMapper mapper = new ObjectMapper();
+
+        Message message = mapper.readValue(context.body(), Message.class);
+        Message updatedMessage = socialService.updateMessage(accountId, message);
+
+        if(updatedMessage != null) {
+            context.json(updatedMessage);
         } else {
             context.status(400);
         }
